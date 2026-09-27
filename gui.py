@@ -223,7 +223,15 @@ def make_sound(samples):
 
 
 def clack(length, freq, noise, decay, rng):
-    """A short percussive 'clack': a decaying tone mixed with a burst of noise."""
+    """
+    A short percussive 'clack': a decaying tone mixed with a burst of noise.
+    Parameters:
+      length: duration of the sound in seconds
+      freq: pitch of the tone in Hz
+      noise: share of random noise in the mix (0 = pure tone, 1 = pure noise)
+      decay: how fast the sound fades out (higher = shorter)
+      rng: random number generator used for the noise
+    """
     n = int(RATE * length)
     return [math.exp(-decay * i / RATE) *
             ((1 - noise) * math.sin(2 * math.pi * freq * i / RATE) + noise * rng.uniform(-1, 1))
@@ -231,7 +239,13 @@ def clack(length, freq, noise, decay, rng):
 
 
 def notes(freqs, each, volume=0.5):
-    """A short melody: each frequency in 'freqs' is played for 'each' seconds."""
+    """
+    A short melody built from sine-wave notes.
+    Parameters:
+      freqs: list of note frequencies in Hz, played in order
+      each: duration of each note in seconds
+      volume: loudness of the notes (0 to 1)
+    """
     out = []
     for f in freqs:
         n = int(RATE * each)
@@ -244,6 +258,7 @@ class Sounds:
     """Holds the game's sound effects. Silently does nothing if audio is unavailable."""
 
     def __init__(self):
+        """Starts the mixer (if needed) and generates every sound effect in code. No parameters."""
         self.enabled = True
         self.bank = {}
         try:
@@ -389,7 +404,15 @@ def top_pos(state, player, where):
 
 
 def draw_arrow(surf, start, end, colour, width=5):
-    """Draws a straight arrow from 'start' to 'end' (used to show the hint)."""
+    """
+    Draws a straight arrow from 'start' to 'end' (used to show the hint).
+    Parameters:
+      surf: the pygame surface to draw on
+      start: (x, y) pixel position where the arrow begins
+      end: (x, y) pixel position of the arrow head
+      colour: RGB colour of the arrow
+      width: line thickness in pixels
+    """
     pygame.draw.line(surf, colour, start, end, width)
     ang = math.atan2(end[1] - start[1], end[0] - start[0])
     head = [end,
@@ -406,6 +429,7 @@ class BackgammonApp:
     """Holds the game state and runs the menu, the game loop and all drawing."""
 
     def __init__(self):
+        """Opens the window, loads fonts and sounds, builds the buttons and shows the title screen. No parameters."""
         if not IN_BROWSER:
             pygame.mixer.pre_init(RATE, -16, 1, 512)
         pygame.init()
@@ -776,7 +800,14 @@ class BackgammonApp:
     # ----- drawing -----------------------------------------------------------
 
     def fit(self, font, text, width, colour):
-        """Renders 'text', shortening it with '..' if it is wider than 'width' pixels."""
+        """
+        Renders 'text', shortening it with '..' if it is wider than 'width' pixels.
+        Parameters:
+          font: the pygame font used to render the text
+          text: the string to draw
+          width: maximum width allowed in pixels
+          colour: RGB colour of the text
+        """
         img = font.render(text, True, colour)
         while img.get_width() > width and len(text) > 3:
             text = text[:-3] + ".."
