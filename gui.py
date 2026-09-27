@@ -196,20 +196,30 @@ RATE = 22050
 
 def make_sound(samples):
     """
-    Wraps a list of floats (-1..1) in an in-memory WAV file and loads it as a pygame Sound.
+    Turns a list of floats (-1..1) into a pygame Sound.
+    The raw samples are converted to whatever format the mixer is running at
+    (sample rate, bit depth, channels), so no WAV/OGG decoder is needed.
+    This matters in the browser, where the mixer picks its own format.
     Parameters:
       samples: the audio waveform, RATE samples per second
     """
-    import wave     # imported here so a browser build without it just runs silently
-    pcm = array("h", (int(max(-1.0, min(1.0, v)) * 30000) for v in samples))
-    buf = io.BytesIO()
-    with wave.open(buf, "wb") as w:
-        w.setnchannels(1)
-        w.setsampwidth(2)
-        w.setframerate(RATE)
-        w.writeframes(pcm.tobytes())
-    buf.seek(0)
-    return pygame.mixer.Sound(buf)
+    freq, size, channels = pygame.mixer.get_init()
+    n_out = max(1, int(len(samples) * freq / RATE))
+    step = RATE / freq
+    out = []
+    for i in range(n_out):
+        v = samples[min(len(samples) - 1, int(i * step))]
+        v = max(-1.0, min(1.0, v))
+        out.extend([v] * channels)
+    if abs(size) == 32:            # float32 samples (common in browsers)
+        data = array("f", out)
+    elif abs(size) == 8:
+        data = array("B" if size > 0 else "b",
+                     (int(v * 127) + (128 if size > 0 else 0) for v in out))
+    else:                          # 16-bit
+        data = array("H" if size > 0 else "h",
+                     (int(v * 30000) + (32768 if size > 0 else 0) for v in out))
+    return pygame.mixer.Sound(buffer=data.tobytes())
 
 
 def clack(length, freq, noise, decay, rng):
@@ -238,7 +248,10 @@ class Sounds:
         self.bank = {}
         try:
             if not pygame.mixer.get_init():
-                pygame.mixer.init(RATE, -16, 1, 512)
+                if IN_BROWSER:
+                    pygame.mixer.init()   # let the browser pick its own sample rate
+                else:
+                    pygame.mixer.init(RATE, -16, 1, 512)
             rng = random.Random(7)
             dice = [0.0] * int(RATE * 0.38)
             for start in (0.0, 0.07, 0.15, 0.24, 0.31):   # dice rattling in the cup
@@ -393,7 +406,8 @@ class BackgammonApp:
     """Holds the game state and runs the menu, the game loop and all drawing."""
 
     def __init__(self):
-        pygame.mixer.pre_init(RATE, -16, 1, 512)
+        if not IN_BROWSER:
+            pygame.mixer.pre_init(RATE, -16, 1, 512)
         pygame.init()
         pygame.display.set_caption(f"Backgammon AI - {STUDENT_NAME} ({STUDENT_ID})")
         self.screen = pygame.display.set_mode((WIN_W, WIN_H))
