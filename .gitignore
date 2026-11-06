@@ -1,3 +1,11 @@
 __pycache__/
 *.pyc
+.DS_Store
+.claude/
+
+# pygbag's web build (the published copy is on itch.io)
 build/
+
+# files written by experiments.py
+results.csv
+results_*.png

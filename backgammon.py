@@ -2,7 +2,7 @@
 Backgammon with Expectiminimax AI - Core Game Logic (Step 1)
 Name:       Krishna Mahajan
 Student ID: 106wucww
-Module:     5ENT1140 Artificial Intelligence Principles - Mini Project
+Module:     5FTC2067 Artificial Intelligence Principles - Mini Project
 
 Board layout (indexes 0-23, shown to players as points 1-24):
   - Positive numbers = White checkers, negative numbers = Black checkers.
@@ -112,7 +112,11 @@ def get_single_moves(state, player, die):
     home_ready = state.all_home(player)
     direction = -1 if player == WHITE else 1
 
-    for src in range(NUM_POINTS):
+    # Both colours list their moves from their back checkers forwards. The AIs keep the first
+    # of several equally scored turns, so scanning in the same order for both colours keeps
+    # ties from favouring one colour (scanning 1-24 for both made Black stronger).
+    order = range(NUM_POINTS - 1, -1, -1) if player == WHITE else range(NUM_POINTS)
+    for src in order:
         if state.count_on(src, player) == 0:
             continue
         dest = src + direction * die

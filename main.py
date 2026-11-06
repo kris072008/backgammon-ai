@@ -2,7 +2,7 @@
 Backgammon with Expectiminimax AI - Entry point
 Name:       Krishna Mahajan
 Student ID: 106wucww
-Module:     5ENT1140 Artificial Intelligence Principles - Mini Project
+Module:     5FTC2067 Artificial Intelligence Principles - Mini Project
 
 pygbag (the browser publisher) requires the entry file to be called main.py.
 Run on desktop:  python3 main.py
