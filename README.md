@@ -7,8 +7,6 @@ A full game of backgammon against four computer opponents built on two AI method
 Expectiminimax search and Monte Carlo rollouts, with the doubling cube, a search-tree view
 that shows how the AI decides, a game review, a tutorial and an AI-vs-AI watch mode.
 
-**▶ Play it in your browser: [kris072008.itch.io/backgammon-ai](https://kris072008.itch.io/backgammon-ai)**
-
 ![Expert (Monte Carlo) vs Hard (Expectiminimax) in watch mode](docs/gameplay.gif)
 
 ## The AI opponents
@@ -48,10 +46,23 @@ equally scored moves were broken.
 
 ## Run it on your computer
 
+The game runs locally; it is not hosted online. Desktop version:
+
 ```bash
 pip install pygame-ce
 python3 main.py
 ```
+
+Browser version, served from your own computer at http://localhost:8000
+(the first start downloads pygbag's WebAssembly runtime; click the page once to start):
+
+```bash
+pip install pygbag
+mkdir -p web && cp main.py gui.py ai.py backgammon.py art.py web/
+python3 -m pygbag --port 8000 web
+```
+
+(Only the game files go in `web/`: `experiments.py` imports matplotlib, which the browser build cannot load.)
 
 Controls: **Space** roll · **H** hint · **T** search tree of the AI's last move · click the cube
 or **D** to double · **B** board set · **M** sound. On the title screen: **1–4** level,
