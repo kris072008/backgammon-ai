@@ -358,7 +358,9 @@ def should_take(state, player):
 # ---------------------------------------------------------------------------
 
 def play_silent_game(white_ai, black_ai):
-    """Plays one full game with no printing. Returns (winner, seconds used by each side).
+    """Plays one full game with no printing.
+    Returns (winner, think_time, moves_made): think_time and moves_made are dicts
+    player -> seconds spent choosing moves / number of turns played.
     Parameters:
       white_ai: AI function controlling White
       black_ai: AI function controlling Black

@@ -12,3 +12,6 @@ results_*.png
 
 # game-only folder for serving the browser version locally
 web/
+
+# presentation notes (not part of the published code)
+presentation/
