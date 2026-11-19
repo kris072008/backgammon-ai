@@ -10,7 +10,7 @@ Build for web:   pygbag .
 """
 
 import asyncio
-import pygame   # must be imported here: pygbag scans main.py to decide which libraries to load
+import pygame  # noqa: F401  (unused here, but pygbag scans main.py to decide which libraries to load)
 from gui import BackgammonApp
 
 

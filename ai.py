@@ -17,7 +17,7 @@ by playing many short simulated futures and averaging the win chance where they 
 import math
 import random
 import time
-from backgammon import (WHITE, BLACK, PLAYER_NAMES, GameState, roll_dice,
+from backgammon import (WHITE, BLACK, GameState, roll_dice,
                         get_legal_turns, random_choice, play_terminal_game)
 
 # All 21 distinct dice rolls with their probabilities (doubles 1/36, others 2/36)
@@ -401,8 +401,10 @@ def benchmark(ai_a, ai_b, name_a, name_b, games=20):
         winner, t, m = play_silent_game(white, black)
         a_colour = WHITE if a_is_white else BLACK
         wins[name_a if winner == a_colour else name_b] += 1
-        time_used[name_a] += t[a_colour]; moves[name_a] += m[a_colour]
-        time_used[name_b] += t[-a_colour]; moves[name_b] += m[-a_colour]
+        time_used[name_a] += t[a_colour]
+        moves[name_a] += m[a_colour]
+        time_used[name_b] += t[-a_colour]
+        moves[name_b] += m[-a_colour]
         print(f"  game {g + 1}/{games}: {name_a if winner == a_colour else name_b} wins")
     print(f"\n{name_a} vs {name_b} over {games} games:")
     for n in (name_a, name_b):

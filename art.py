@@ -260,12 +260,12 @@ def gold_text(font, text, spacing=0):
         return _cache[key]
     if spacing:
         letters = [font.render(ch, True, (255, 255, 255)) for ch in text]
-        w = sum(l.get_width() for l in letters) + spacing * (len(text) - 1)
+        w = sum(letter.get_width() for letter in letters) + spacing * (len(text) - 1)
         mask = pygame.Surface((w, font.get_height()), pygame.SRCALPHA)
         x = 0
-        for l in letters:
-            mask.blit(l, (x, 0))
-            x += l.get_width() + spacing
+        for letter in letters:
+            mask.blit(letter, (x, 0))
+            x += letter.get_width() + spacing
     else:
         mask = font.render(text, True, (255, 255, 255))
     w, h = mask.get_size()

@@ -112,8 +112,10 @@ def run_match(name_a, name_b, games, match_no, pool):
         if winner == a_colour:
             wins += 1
             gammons += gammon
-        time_a += t[a_colour]; moves_a += m[a_colour]
-        time_b += t[-a_colour]; moves_b += m[-a_colour]
+        time_a += t[a_colour]
+        moves_a += m[a_colour]
+        time_b += t[-a_colour]
+        moves_b += m[-a_colour]
     rate = wins / games
     margin = 196 * math.sqrt(rate * (1 - rate) / games)       # 95% margin of error, in %
     return {"games": games, "wins": wins, "win_rate": 100 * rate, "margin": margin,
@@ -213,10 +215,22 @@ def main():
     """Runs the three experiments, prints the results table and saves the CSV and charts."""
     quick = "--quick" in sys.argv
     scale = 0.05 if quick else 1.0
-    n = lambda full: max(2, int(full * scale))       # number of games to play in this mode
+    def n(full):
+        """Number of games to play in this mode.
+        Parameters:
+          full: the number of games in the full experiment
+        """
+        return max(2, int(full * scale))
+
     pool = Pool(os.cpu_count())
-    line = lambda name, r: (f"  {name:<20} {r['games']:>4} games  win rate {r['win_rate']:5.1f}% "
-                            f"(+/- {r['margin']:4.1f})  gammons {r['gammons']:>3}  {r['ms_a']:6.1f} ms/move")
+    def line(name, r):
+        """Formats one row of the results table.
+        Parameters:
+          name: the match label, e.g. 'Hard vs Medium'
+          r: the result dict returned by run_match
+        """
+        return (f"  {name:<20} {r['games']:>4} games  win rate {r['win_rate']:5.1f}% "
+                f"(+/- {r['margin']:4.1f})  gammons {r['gammons']:>3}  {r['ms_a']:6.1f} ms/move")
 
     print("Experiment 1: tournament between difficulty levels")
     tournament = []

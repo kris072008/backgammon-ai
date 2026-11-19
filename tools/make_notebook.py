@@ -106,12 +106,18 @@ for lib in ("pygame", "matplotlib"):
 The start position, and every legal way White can play an opening roll of 5-3.
 """),
         code("""
-import os, random, sys, importlib
+import importlib
+import os
+import random
+import sys
+
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")      # no window is needed for the demos
 sys.path.insert(0, os.getcwd())
-import backgammon, ai
-importlib.reload(backgammon); importlib.reload(ai)     # pick up the files written above
-from backgammon import WHITE, BLACK, GameState, get_legal_turns, format_move, print_board
+backgammon = importlib.reload(importlib.import_module("backgammon"))   # the files written above
+ai = importlib.reload(importlib.import_module("ai"))
+WHITE, BLACK, GameState = backgammon.WHITE, backgammon.BLACK, backgammon.GameState
+get_legal_turns, format_move = backgammon.get_legal_turns, backgammon.format_move
+print_board = backgammon.print_board
 
 start = GameState()
 print_board(start)
@@ -235,15 +241,18 @@ errors = [0, 2, 5, 5, 5]
 fig, axis = plt.subplots(figsize=(8, 3.6))
 bars = axis.barh(names[::-1], rates[::-1], xerr=errors[::-1], color="#1f6b4f", capsize=4)
 axis.axvline(50, color="#8a2a2a", linestyle="--", linewidth=1)
-axis.set_xlim(0, 105); axis.set_xlabel("Win rate of the first AI (%)")
+axis.set_xlim(0, 105)
+axis.set_xlabel("Win rate of the first AI (%)")
 axis.set_title("Look-ahead beats greedy play; Monte Carlo beats Expectiminimax")
 for bar, r in zip(bars, rates[::-1]):
     axis.text(r + 1.5, bar.get_y() + bar.get_height() / 2, f"{r}%", va="center")
-plt.tight_layout(); plt.show()
+plt.tight_layout()
+plt.show()
 """),
         md("### 2.8 Automated tests"),
         code("""
-import os, unittest
+import unittest
+
 os.environ["NO_COLOR"] = "1"                          # plain text output in the notebook
 suite = unittest.defaultTestLoader.discover("tests")
 result = unittest.TextTestRunner(verbosity=2, stream=sys.stdout).run(suite)
@@ -273,7 +282,9 @@ def main():
     finally:
         shutil.rmtree(work, ignore_errors=True)
     nb.cells.append(code("""
-import subprocess, sys
+import subprocess
+import sys
+
 game = subprocess.Popen([sys.executable, "main.py"])   # opens the game window
 print("The game is starting in a new window.")
 """))
