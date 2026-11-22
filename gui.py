@@ -61,7 +61,10 @@ THEMES = [
      "table": (20, 24, 32), "point_a": (226, 228, 232), "point_b": (190, 96, 56)},
     {"name": "Ebony", "felt": (40, 32, 52), "wood": (58, 36, 32), "grain": (28, 16, 14),
      "table": (14, 11, 16), "point_a": (214, 186, 120), "point_b": (96, 64, 136)},
+    {"name": "Neon", "felt": (12, 10, 32), "wood": (34, 26, 70), "grain": (150, 40, 210),
+     "table": (6, 4, 14), "point_a": (40, 220, 255), "point_b": (255, 50, 170)},
 ]
+AI_TRAIL = (255, 150, 60)             # colour of the arrows that trace the AI's last move
 BG = (24, 16, 11)
 PANEL = (52, 34, 22)
 TEXT = (242, 234, 214)
@@ -767,6 +770,7 @@ class BackgammonApp:
         self.last_dests, self.last_mover = [], None     # rings on the last AI move
         self.log = []
         self.ai_reason = []        # plain-English reasons for the AI's last move
+        self.ai_trail = None       # the AI's last move, drawn as glowing arrows until you move
         self.anims = []            # checkers currently sliding across the board
         self.effects = []          # short visual effects (hit bursts)
         self.particles = []        # confetti on the game-over screen
@@ -1236,6 +1240,10 @@ class BackgammonApp:
             self.last_dests, self.last_mover = [], self.current
             if not self.ai_queue:
                 self.add_log(f"{self.side_name(self.current)} has no legal moves.")
+            self.ai_trail = {"state": self.state, "player": self.current,
+                             "moves": list(self.ai_queue),
+                             "reason": self.ai_reason[0] if self.ai_reason else ""} \
+                if self.ai_queue else None
             self.phase, self.timer = "ai_moving", now
         elif self.phase == "ai_moving" and now - self.timer > self.pace(AI_MOVE_MS):
             if self.ai_queue:
@@ -1776,6 +1784,22 @@ class BackgammonApp:
                 num = self.f_tiny.render(str(i + 1), True, BG)
                 layer.blit(num, num.get_rect(center=frm))
             s.blit(layer, (0, 0))
+
+        # The AI's last move: pulsing arrows and its main reason, shown until the human moves
+        trail = self.ai_trail
+        if trail and not (self.phase == "human_move" and self.played) and self.phase in (
+                "ai_moving", "pass", "await_roll", "rolling", "human_move", "ai_thinking"):
+            layer = pygame.Surface((WIN_W, WIN_H), pygame.SRCALPHA)
+            pulse = int(150 + 80 * math.sin(now / 220))
+            self.draw_move_arrows(layer, trail["state"], trail["player"], trail["moves"],
+                                  AI_TRAIL + (pulse,))
+            s.blit(layer, (0, 0))
+            if trail["reason"]:
+                who = "AI" if not self.watch else self.side_name(trail["player"])
+                cap = self.f_tiny.render(f"{who}: {trail['reason']}", True, BG)
+                box = cap.get_rect(center=(BX + BOARD_W // 2, BY + BOARD_H // 2))
+                pygame.draw.rect(s, AI_TRAIL, box.inflate(18, 10), border_radius=12)
+                s.blit(cap, box)
 
         # Review: the move actually played (gold) and, for a weak human move, the best one (cyan)
         if self.phase == "review" and self.review_i > 0:
