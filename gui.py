@@ -29,7 +29,7 @@ from backgammon import (WHITE, BLACK, GameState, roll_dice, get_legal_turns, app
                         format_move)
 from ai import (easy_ai, medium_ai, hard_ai, expert_ai, pip_count, order_turns, chance_node,
                 decision_node, evaluate, win_probability, rollout_values, should_double,
-                should_take, WIN_SCORE, ALL_ROLLS, MC_ROLLOUTS, MC_HORIZON)
+                should_take, explain_turn, WIN_SCORE, ALL_ROLLS, MC_ROLLOUTS, MC_HORIZON)
 
 # True when running in a web browser (pygbag / WebAssembly), where threads are not available
 IN_BROWSER = sys.platform == "emscripten"
@@ -766,6 +766,7 @@ class BackgammonApp:
         self.played, self.sequences = [], []
         self.last_dests, self.last_mover = [], None     # rings on the last AI move
         self.log = []
+        self.ai_reason = []        # plain-English reasons for the AI's last move
         self.anims = []            # checkers currently sliding across the board
         self.effects = []          # short visual effects (hit bursts)
         self.particles = []        # confetti on the game-over screen
@@ -982,6 +983,8 @@ class BackgammonApp:
             analysis["rows"] = [(format_turn(moves), "")]
         self.ai_analysis = analysis
         self.ai_search = search
+        after = next((result for m, result in turns if m == moves), None)
+        self.ai_reason = explain_turn(state, after, player) if moves and after else []
         self.ai_result = moves          # set last: the main loop waits for this
 
     def end_turn(self):
@@ -1243,6 +1246,11 @@ class BackgammonApp:
                 self.last_dests.append(move[1])
                 self.timer = now
             elif not self.anims:
+                if self.ai_reason:                            # explainable AI: why it moved
+                    self.add_log("Why this move:")
+                for reason in self.ai_reason:
+                    self.add_log(f"- {reason}")
+                self.ai_reason = []
                 self.end_turn()
         elif self.phase == "gameover" and self.watch \
                 and now - self.timer > WATCH_RESTART_MS:

@@ -95,6 +95,48 @@ def evaluate(state, player):
     return score
 
 
+def explain_turn(before, after, player):
+    """
+    Explains in plain English why a turn is good or risky, by comparing the features that
+    evaluate() scores before and after the turn (explainable AI: the reasons behind the move).
+    Returns up to three short reasons, e.g. ['hits a blot', 'makes a point', 'leaves no blots'].
+    Parameters:
+      before: the GameState before the turn
+      after: the GameState after the turn
+      player: WHITE (1) or BLACK (-1), the side that moved
+    """
+    opp = -player
+    if after.winner() == player:
+        return ["wins the game"]
+    reasons = []
+    hits = after.bar[opp] - before.bar[opp]
+    if hits > 0:
+        reasons.append("hits a blot" if hits == 1 else f"hits {hits} blots")
+    borne_off = after.off[player] - before.off[player]
+    if borne_off > 0:
+        reasons.append(f"bears off {borne_off}")
+    if before.bar[player] > after.bar[player]:
+        reasons.append("enters from the bar")
+    home = range(0, 6) if player == WHITE else range(18, 24)
+    new_points = [i for i in range(24)
+                  if after.count_on(i, player) >= 2 and before.count_on(i, player) < 2]
+    if new_points:
+        kind = "home " if all(i in home for i in new_points) else ""
+        what = f"a {kind}point" if len(new_points) == 1 else f"{len(new_points)} {kind}points"
+        reasons.append(f"makes {what}")
+    back = range(18, 24) if player == WHITE else range(0, 6)     # the opponent's home board
+    if sum(after.count_on(i, player) for i in back) < sum(before.count_on(i, player) for i in back):
+        reasons.append("runs a back checker")
+    exposed = sum(1 for i in range(24)
+                  if after.count_on(i, player) == 1 and is_exposed(after, i, player))
+    reasons.append("leaves no blots" if exposed == 0 else
+                   f"risks {exposed} blot" + ("s" if exposed > 1 else ""))
+    lead = pip_count(after, opp) - pip_count(after, player)
+    if len(reasons) < 3:
+        reasons.append(f"{'leads' if lead >= 0 else 'trails'} the race by {abs(lead)}")
+    return reasons[:3]
+
+
 def order_turns(turns, player, beam):
     """
     Sorts turns by their immediate evaluation and keeps only the best 'beam' of them.

@@ -206,6 +206,19 @@ class AITests(unittest.TestCase):
         self.assertEqual(ai.expert_ai(s, WHITE, [6, 1], turns)[0], first)
 
 
+    def test_explain_turn_gives_the_reasons(self):
+        """The opening 5-3 (8/3 6/3) is explained as a safe new home point, and a hit is reported."""
+        start = GameState()
+        turns = get_legal_turns(start, WHITE, [5, 3])
+        after = next(result for moves, result in turns if moves == [(7, 2), (5, 2)])
+        self.assertEqual(ai.explain_turn(start, after, WHITE)[:2],
+                         ["makes a home point", "leaves no blots"])
+        hit = position({10: 2}, {7: 1, 23: 2})
+        turns = get_legal_turns(hit, WHITE, [3, 1])
+        after = next(result for moves, result in turns if (10, 7) in moves)
+        self.assertIn("hits a blot", ai.explain_turn(hit, after, WHITE))
+
+
 class ExperimentTests(unittest.TestCase):
     """The experiments are reproducible: the same seeds give the same results."""
 

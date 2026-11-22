@@ -42,7 +42,7 @@ MODULES = [
      "The 2,100 seeded AI-vs-AI games behind the results, run in parallel on every core. "
      "Run it from a terminal (`python3 experiments.py`, about 10 minutes, or `--quick`)."),
     ("tests/test_backgammon_ai.py", "Step 7 - Automated tests",
-     "19 tests of the rules, the scoring, the win probability, colour symmetry and every AI."),
+     "20 tests of the rules, the scoring, the win probability, colour symmetry, the move explanations and every AI."),
 ]
 
 

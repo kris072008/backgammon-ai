@@ -5,7 +5,7 @@
 
 A full game of backgammon against four computer opponents built on two AI methods,
 Expectiminimax search and Monte Carlo rollouts, with the doubling cube, a search-tree view
-that shows how the AI decides, a game review, a tutorial and an AI-vs-AI watch mode.
+that shows how the AI decides, plain-English reasons for every AI move, a game review, a tutorial and an AI-vs-AI watch mode.
 
 ![Expert (Monte Carlo) vs Hard (Expectiminimax) in watch mode](docs/gameplay.gif)
 
@@ -44,9 +44,11 @@ equally scored moves were broken.
 
 ![Tutorial](docs/tutorial.png)
 
-## Run it on your computer
+## Play it
 
-The game runs locally; it is not hosted online. Desktop version:
+**Online:** https://kris072008.itch.io/backgammon-ai (click *Run game*).
+
+On your computer, desktop version:
 
 ```bash
 pip install pygame-ce
@@ -72,7 +74,7 @@ After a game, **Review** steps through every turn with your move grades and the 
 ## Tests and experiments
 
 ```bash
-python3 -m unittest discover tests     # 19 tests: rules, scoring, win probability, all four AIs
+python3 -m unittest discover tests     # 20 tests: rules, scoring, win probability, move explanations, all four AIs
 python3 experiments.py --quick         # small version of the experiments
 python3 experiments.py                 # the full 2,100 games (about 10 minutes, uses every core)
 ```
